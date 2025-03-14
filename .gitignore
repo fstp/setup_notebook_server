@@ -1,0 +1,6 @@
+.env
+.project
+.terraform*
+inventory
+venv/
+requirements.txt

@@ -1,0 +1,91 @@
+# vi: ft=yaml.ansible
+---
+- hosts: all
+  become: true
+  vars:
+    jupyter_user: "ubuntu"
+    jupyter_notebook_dir: "/home/{{ jupyter_user }}/notebooks"
+    jupyter_config_path: "/home/{{ jupyter_user }}/.jupyter/jupyter_server_config.py"
+    jupyter_port: 8888
+    jupyter_password: "argon2:$argon2id$v=19$m=10240,t=10,p=8$fIEUWI5Hk4Dl93t3kszIUw$Xg1xMMdnvbzHHVK9NGjE/4ZtHIkVVmzlSCudZrfMccM"
+
+  tasks:
+    - name: Install required system packages
+      apt:
+        name: ["python3-pip", "python3-dev"]
+        state: present
+        update_cache: yes
+
+    # New requirement file handling
+    - name: Copy requirements.txt to server
+      copy:
+        src: requirements.txt
+        dest: /tmp/requirements.txt
+        owner: "{{ jupyter_user }}"
+        group: "{{ jupyter_user }}"
+        mode: '0644'
+
+    - name: Install Python requirements system-wide
+      pip:
+        requirements: /tmp/requirements.txt
+        state: present
+
+    - name: Install Jupyter Lab using pip
+      pip:
+        name: jupyterlab
+        state: present
+
+    - name: Ensure notebook directory exists
+      file:
+        path: "{{ jupyter_notebook_dir }}"
+        state: directory
+        owner: "{{ jupyter_user }}"
+        group: "{{ jupyter_user }}"
+        mode: '0755'
+
+    # - name: Copy notebook to server
+    #   copy:
+    #     src: vision_transformer.ipynb
+    #     dest: "{{ jupyter_notebook_dir }}/vision_transformer.ipynb"
+    #     owner: "{{ jupyter_user }}"
+    #     group: "{{ jupyter_user }}"
+    #     mode: '0644'
+
+    # Remaining original tasks remain unchanged
+    - name: Generate default Jupyter config
+      become_user: "{{ jupyter_user }}"
+      command: "jupyter lab --generate-config"
+      args:
+        creates: "{{ jupyter_config_path }}"
+
+    - name: Configure Jupyter Lab
+      template:
+        src: jupyter_server_config.py.j2
+        dest: "{{ jupyter_config_path }}"
+        owner: "{{ jupyter_user }}"
+        group: "{{ jupyter_user }}"
+        mode: '0644'
+
+    - name: Create systemd service for Jupyter Lab
+      template:
+        src: jupyter-lab.service.j2
+        dest: /etc/systemd/system/jupyter-lab.service
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
+
+    - name: Enable and start Jupyter Lab service
+      systemd:
+        name: jupyter-lab
+        state: started
+        enabled: yes
+
+    - name: Allow Jupyter port through firewall
+      ufw:
+        rule: allow
+        port: "{{ jupyter_port }}"
+        proto: tcp
