@@ -6,6 +6,7 @@ terraform {
   }
 }
 
+# TF_VAR_lambdalabs_api_key
 variable "lambdalabs_api_key" {
   type = string
   sensitive = true
@@ -25,23 +26,18 @@ provider "lambdalabs" {
   api_key = var.lambdalabs_api_key
 }
 
-resource "lambdalabs_instance" "deepseek_r1" {
+resource "lambdalabs_instance" "notebook_server" {
   region_name = var.region
   instance_type_name = var.gpu
   ssh_key_names = [
     "lambda_labs"
   ]
-  /*
-  file_system_names = [
-    "deepseek-r1-${var.region}"
-  ]
-  */
 }
 
 output "ip" {
-  value = lambdalabs_instance.deepseek_r1.ip
+  value = lambdalabs_instance.notebook_server.ip
 }
 
 output "id" {
-  value = lambdalabs_instance.deepseek_r1.id
+  value = lambdalabs_instance.notebook_server.id
 }

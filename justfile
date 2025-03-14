@@ -15,4 +15,7 @@ start_jupyter:
     . venv/bin/activate && jupyter lab --no-browser --port=8888 --notebook-dir=./notebooks
 
 upload:
-    rsync -vz -e "ssh -i ~/.ssh/lambda_labs" ./notebooks ubuntu@$(cat inventory):/home/ubuntu
+    rsync -arvzP -e "ssh -i ~/.ssh/lambda_labs" ./notebooks ubuntu@$(cat inventory):/home/ubuntu
+
+download:
+    rsync -arvzP -e "ssh -i ~/.ssh/lambda_labs" ubuntu@$(cat inventory):/home/ubuntu/notebooks ./

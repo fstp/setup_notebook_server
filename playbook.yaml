@@ -2,8 +2,10 @@
 ---
 - hosts: all
   become: true
+  remote_user: "ubuntu"
   vars:
     jupyter_user: "ubuntu"
+    jupyter_venv: "/home/{{ jupyter_user }}/venv"
     jupyter_notebook_dir: "/home/{{ jupyter_user }}/notebooks"
     jupyter_config_path: "/home/{{ jupyter_user }}/.jupyter/jupyter_server_config.py"
     jupyter_port: 8888
@@ -12,11 +14,10 @@
   tasks:
     - name: Install required system packages
       apt:
-        name: ["python3-pip", "python3-dev"]
+        name: ["python3-pip", "python3-dev", "python3-venv"]
         state: present
         update_cache: yes
 
-    # New requirement file handling
     - name: Copy requirements.txt to server
       copy:
         src: requirements.txt
@@ -25,14 +26,22 @@
         group: "{{ jupyter_user }}"
         mode: '0644'
 
-    - name: Install Python requirements system-wide
+    - name: Create Python virtual environment
+      become_user: "{{ jupyter_user }}"
+      command: "python3 -m venv {{ jupyter_venv }}"
+      args:
+        creates: "{{ jupyter_venv }}/bin/activate"
+
+    - name: Install Python requirements into virtual environment
       pip:
         requirements: /tmp/requirements.txt
+        virtualenv: "{{ jupyter_venv }}"
         state: present
 
-    - name: Install Jupyter Lab using pip
+    - name: Install Jupyter Lab into virtual environment
       pip:
         name: jupyterlab
+        virtualenv: "{{ jupyter_venv }}"
         state: present
 
     - name: Ensure notebook directory exists
@@ -43,18 +52,9 @@
         group: "{{ jupyter_user }}"
         mode: '0755'
 
-    # - name: Copy notebook to server
-    #   copy:
-    #     src: vision_transformer.ipynb
-    #     dest: "{{ jupyter_notebook_dir }}/vision_transformer.ipynb"
-    #     owner: "{{ jupyter_user }}"
-    #     group: "{{ jupyter_user }}"
-    #     mode: '0644'
-
-    # Remaining original tasks remain unchanged
     - name: Generate default Jupyter config
       become_user: "{{ jupyter_user }}"
-      command: "jupyter lab --generate-config"
+      command: "{{ jupyter_venv }}/bin/jupyter lab --generate-config"
       args:
         creates: "{{ jupyter_config_path }}"
 

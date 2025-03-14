@@ -4,3 +4,4 @@
 inventory
 venv/
 requirements.txt
+terraform.tfstate*

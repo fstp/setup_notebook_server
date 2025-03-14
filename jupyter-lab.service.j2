@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 User={{ jupyter_user }}
 WorkingDirectory={{ jupyter_notebook_dir }}
-ExecStart=/usr/local/bin/jupyter lab --config={{ jupyter_config_path }}
+ExecStart={{ jupyter_venv }}/bin/jupyter lab --config={{ jupyter_config_path }}
 Restart=always
 RestartSec=10
 
