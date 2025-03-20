@@ -1,3 +1,5 @@
+alias lab := start_jupyter
+
 build:
     terraform apply -auto-approve
 
