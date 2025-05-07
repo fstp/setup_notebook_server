@@ -3,7 +3,6 @@
 .terraform*
 inventory
 venv/
-requirements.txt
 terraform.tfstate*
 .ipynb_checkpoints/
 notebooks/data/
