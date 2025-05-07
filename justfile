@@ -13,8 +13,11 @@ install:
 ssh:
     ssh -i ~/.ssh/lambda_labs ubuntu@$(./create_inventory.sh)
 
+create_jupyter_kernel:
+    . venv/bin/activate && python -m ipykernel install --user --name=venv
+
 start_jupyter:
-    . venv/bin/activate && jupyter lab --no-browser --port=8888 --notebook-dir=./notebooks
+    . venv/bin/activate && jupyter lab --no-browser --port=8888 --notebook-dir=./
 
 upload:
     rsync -arvzP -e "ssh -i ~/.ssh/lambda_labs" ./notebooks ubuntu@$(cat inventory):/home/ubuntu

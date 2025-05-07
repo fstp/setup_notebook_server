@@ -20,3 +20,4 @@ transformers==4.49.0
 umap-learn==0.5.7
 yfinance==0.2.53
 jupyterlab==4.4.2
+ipykernel==6.29.5
