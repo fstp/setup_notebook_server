@@ -13,8 +13,10 @@ install:
 ssh:
     ssh -i ~/.ssh/lambda_labs ubuntu@$(./create_inventory.sh)
 
-create_jupyter_kernel:
+# You only need to run this once to set up the kernel and ipywidgets extension
+setup_jupyter:
     . venv/bin/activate && python -m ipykernel install --user --name=venv
+    . venv/bin/activate && jupyter labextension install @jupyter-widgets/jupyterlab-manager
 
 start_jupyter:
     . venv/bin/activate && jupyter lab --no-browser --port=8888 --notebook-dir=./
