@@ -19,7 +19,7 @@ setup_jupyter:
     . venv/bin/activate && jupyter labextension install @jupyter-widgets/jupyterlab-manager
 
 start_jupyter:
-    . venv/bin/activate && jupyter lab --no-browser --port=8888 --notebook-dir=./
+    . venv/bin/activate && jupyter lab --no-browser --port=8888 --notebook-dir=./notebooks
 
 upload:
     rsync -arvzP -e "ssh -i ~/.ssh/lambda_labs" ./notebooks ubuntu@$(cat inventory):/home/ubuntu
