@@ -26,3 +26,9 @@ upload:
 
 download:
     rsync -arvzP -e "ssh -i ~/.ssh/lambda_labs" ubuntu@$(cat inventory):/home/ubuntu/notebooks ./
+
+decrypt:
+    gpg -d .env.gpg > .env
+
+encrypt:
+    gpg -c .env
